@@ -3,8 +3,7 @@ package s3
 import (
 	"fmt"
 	"os"
-
-	"net/http"
+	"path"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
@@ -34,25 +33,20 @@ func Upload(key, secret, bucket, filename string) error {
 		return err
 	}
 	size := fileInfo.Size()
-	buff := make([]byte, size)
-	// Read in the file contents
-
-	// get the filetype, we know it's tar.gz so replace this maybe
-	fileType := http.DetectContentType(buff)
-	path := "/sonobuoy/" + file.Name()
-
+	path := "/sonobuoy/" + path.Base(file.Name())
+	fmt.Println("Uploading to ", path)
 	params := &s3.PutObjectInput{
 		Bucket:        &bucket,
 		Key:           &path,
 		Body:          file,
 		ContentLength: &size,
-		ContentType:   &fileType,
 	}
 	resp, err := svc.PutObject(params)
+
 	if err != nil {
 		fmt.Printf("bad response: %s", err)
 	}
-	fmt.Printf("response %s", awsutil.StringValue(resp))
+	fmt.Printf("response %s\n", awsutil.StringValue(resp))
 
 	return nil
 }
