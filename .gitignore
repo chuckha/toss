@@ -2,3 +2,4 @@
 bin
 .container*
 .dockerfile*
+.push*
