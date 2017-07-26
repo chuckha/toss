@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	regionFlag   = "region"
 	bucketFlag   = "bucket"
 	filepathFlag = "filepath"
 	keyEnv       = "ACCESS_KEY_ID"
@@ -16,8 +17,8 @@ const (
 )
 
 var (
-	bucket, filepath string
-	key, secret      string
+	bucket, filepath, region string
+	key, secret              string
 )
 
 func init() {
@@ -46,6 +47,7 @@ func requiredEnv(env, value string) {
 }
 
 func main() {
+	flag.StringVar(&region, regionFlag, "us-west-1", "the region the bucket lives in")
 	flag.StringVar(&bucket, bucketFlag, "", "the bucket to upload the file to")
 	flag.StringVar(&filepath, filepathFlag, "", "the file to upload")
 	flag.Parse()
@@ -53,5 +55,6 @@ func main() {
 	requiredArg(filepathFlag, filepath)
 	requiredEnv(keyEnv, key)
 	requiredEnv(secretEnv, secret)
-	s3.Upload(key, secret, bucket, filepath)
+	cfg := s3.Config(key, secret, region)
+	s3.Upload(cfg, bucket, filepath)
 }

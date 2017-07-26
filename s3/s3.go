@@ -12,12 +12,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-// Upload is a nice wrapper for uploading a file
-func Upload(key, secret, bucket, filename string) error {
-	// build credentials
+// Config will make an object that can be used to authenticate with aws
+func Config(key, secret, region string) *aws.Config {
 	creds := credentials.NewStaticCredentials(key, secret, "")
-	cfg := aws.NewConfig().WithRegion("us-west-2").WithCredentials(creds)
+	return aws.NewConfig().WithRegion(region).WithCredentials(creds)
+}
 
+// Upload is a nice wrapper for uploading a file
+func Upload(cfg *aws.Config, bucket, filename string) error {
 	// Startup a new session with our config
 	svc := s3.New(session.New(), cfg)
 
