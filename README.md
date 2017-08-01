@@ -1,10 +1,10 @@
-# github.com/heptio/tos3
+# github.com/heptio/toss
 
 A simple script to upload a file to s3
 
 ## Installation
 
-    go get github.com/heptio/tos3
+    go get github.com/heptio/toss
 
 ## Building
 
@@ -15,7 +15,7 @@ A simple script to upload a file to s3
 
 ## How to use
 
-    ACCESS_KEY_ID=abc SECRET_ACCESS_KEY=123 tos3 -bucket files.heptio.com -region us-west-2 path/to/file
+    ACCESS_KEY_ID=abc SECRET_ACCESS_KEY=123 toss -bucket files.heptio.com -region us-west-2 path/to/file
 
 # Goals
 

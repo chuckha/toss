@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TARGET = tos3
+TARGET = toss
 GOTARGET = github.com/heptio/$(TARGET)
 BUILDMNT = /go/src/$(GOTARGET)
 REGISTRY ?= gcr.io/heptio-prod
@@ -21,7 +21,7 @@ BUILD_IMAGE ?= golang:1.8
 DOCKER ?= docker
 DIR := ${CURDIR}
 BUILDCMD = go build -v
-BUILD = $(BUILDCMD) ./cmd/tos3
+BUILD = $(BUILDCMD) ./cmd/toss
 
 local:
 	$(BUILD)
