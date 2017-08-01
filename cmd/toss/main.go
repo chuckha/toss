@@ -1,29 +1,33 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"time"
 
-	"github.com/heptio/tos3/s3"
+	"github.com/heptio/toss/s3"
 )
 
 const (
-	regionFlag   = "region"
-	bucketFlag   = "bucket"
-	filepathFlag = "filepath"
-	keyEnv       = "ACCESS_KEY_ID"
-	secretEnv    = "SECRET_ACCESS_KEY"
+	regionFlag = "region"
+	bucketFlag = "bucket"
+	keyEnv     = "ACCESS_KEY_ID"
+	secretEnv  = "SECRET_ACCESS_KEY"
+	resultsEnv = "RESULTS_DIR"
 )
 
 var (
-	bucket, filepath, region string
-	key, secret              string
+	bucket, region          string
+	key, secret, resultsDir string
 )
 
 func init() {
 	key = os.Getenv(keyEnv)
 	secret = os.Getenv(secretEnv)
+	resultsDir = os.Getenv(resultsEnv)
 }
 
 func usage() {
@@ -49,12 +53,29 @@ func requiredEnv(env, value string) {
 func main() {
 	flag.StringVar(&region, regionFlag, "us-west-1", "the region the bucket lives in")
 	flag.StringVar(&bucket, bucketFlag, "", "the bucket to upload the file to")
-	flag.StringVar(&filepath, filepathFlag, "", "the file to upload")
 	flag.Parse()
 	requiredArg(bucketFlag, bucket)
-	requiredArg(filepathFlag, filepath)
 	requiredEnv(keyEnv, key)
 	requiredEnv(secretEnv, secret)
+	requiredEnv(resultsEnv, resultsDir)
+
+	doneFile := resultsDir + "/done"
 	cfg := s3.Config(key, secret, region)
-	s3.Upload(cfg, bucket, filepath)
+	contents := waitForFile(doneFile)
+
+	for _, file := range bytes.Split(contents, []byte("\n")) {
+		s3.Upload(cfg, bucket, string(file))
+	}
+}
+
+func waitForFile(waitfile string) []byte {
+	// TODO: add maximum amount of waiting time
+	for {
+		contents, err := ioutil.ReadFile(waitfile) // For read access.
+		if err != nil {
+			time.Sleep(1 * time.Second)
+		} else {
+			return contents
+		}
+	}
 }

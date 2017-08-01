@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # Copyright 2016 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -o errexit
-set -o nounset
-set -o pipefail
+FROM buildpack-deps:jessie-scm
+LABEL maintainer="chuck@heptio.com"
+RUN apt-get update && apt-get -y --no-install-recommends install \
+    ca-certificates \
+    && rm -rf /var/cache/apt/* \
+    && rm -rf /var/lib/apt/lists/*
+ADD toss /toss
+ADD upload-files.sh /upload-files.sh
 
-if [ -z "${PKG}" ]; then
-    echo "PKG must be set"
-    exit 1
-fi
-if [ -z "${ARCH}" ]; then
-    echo "ARCH must be set"
-    exit 1
-fi
-if [ -z "${VERSION}" ]; then
-    echo "VERSION must be set"
-    exit 1
-fi
-
-export CGO_ENABLED=0
-export GOARCH="${ARCH}"
-
-go install                                                         \
-    -installsuffix "static"                                        \
-    -ldflags "-X ${PKG}/pkg/version.VERSION=${VERSION}"            \
-    ./...
+CMD ["/bin/sh", "-c", "/upload-files.sh"]
