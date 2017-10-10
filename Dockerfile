@@ -1,4 +1,4 @@
-# Copyright 2016 The Kubernetes Authors.
+# Copyright 2017 Heptio Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM buildpack-deps:jessie-scm
+FROM alpine:3.6
+
 LABEL maintainer="chuck@heptio.com"
-RUN apt-get update && apt-get -y --no-install-recommends install \
-    ca-certificates \
-    && rm -rf /var/cache/apt/* \
-    && rm -rf /var/lib/apt/lists/*
-ADD toss /toss
-ADD upload-files.sh /upload-files.sh
+
+RUN apk add --no-cache ca-certificates
+COPY toss /toss
+COPY upload-files.sh /upload-files.sh
 
 CMD ["/bin/sh", "-c", "/upload-files.sh"]

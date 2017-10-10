@@ -64,12 +64,17 @@ func main() {
 	contents := waitForFile(doneFile)
 
 	for _, file := range bytes.Split(contents, []byte("\n")) {
-		s3.Upload(cfg, bucket, string(file))
+		if len(file) == 0 {
+			continue
+		}
+		err := s3.Upload(cfg, bucket, string(file))
+		if err != nil {
+			fmt.Printf("Error encountered in s3.Upload: %v", err)
+		}
 	}
 }
 
 func waitForFile(waitfile string) []byte {
-	// TODO: add maximum amount of waiting time
 	for {
 		contents, err := ioutil.ReadFile(waitfile) // For read access.
 		if err != nil {

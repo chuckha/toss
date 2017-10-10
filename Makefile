@@ -15,8 +15,8 @@
 TARGET = toss
 GOTARGET = github.com/heptio/$(TARGET)
 BUILDMNT = /go/src/$(GOTARGET)
-REGISTRY ?= gcr.io/heptio-prod
-VERSION ?= latest
+REGISTRY ?= gcr.io/heptio-images
+VERSION ?= v0.0.1
 BUILD_IMAGE ?= golang:1.8
 DOCKER ?= docker
 DIR := ${CURDIR}
@@ -26,16 +26,13 @@ BUILD = $(BUILDCMD) ./cmd/toss
 local:
 	$(BUILD)
 
-test:
-	echo "Chuck is a slacker"
-
 all: cbuild container
 
 cbuild:
 	$(DOCKER) run --rm -v $(DIR):$(BUILDMNT) -w $(BUILDMNT) $(BUILD_IMAGE) /bin/sh -c '$(BUILD)'
 
-container: cbuild
-	$(DOCKER) build -t $(REGISTRY)/$(TARGET):latest -t $(REGISTRY)/$(TARGET)-cha:$(VERSION) .
+image: cbuild
+	$(DOCKER) build -t $(REGISTRY)/$(TARGET):latest -t $(REGISTRY)/$(TARGET):$(VERSION) .
 
 push:
 	gcloud docker -- push $(REGISTRY)/$(TARGET):$(VERSION)
